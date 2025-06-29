@@ -1,8 +1,7 @@
-// LocationSetter.js
 import React, { useState, useEffect } from "react";
 import api from "../api";
 
-export function LocationSetter({ onLocationSet }) {
+export default function LocationSetter({ onLocationSet }) {
   const [zipCode, setZipCode] = useState("");
   const [city, setCity] = useState("");
   const [currentLocation, setCurrentLocation] = useState({});
