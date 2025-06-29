@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import api from "./api";
 import CodeScanner from "./components/codeScanner";
 import Inventory from "./components/Inventory";
 import BudgetTracker from "./components/BudgetTracker";
@@ -10,180 +12,69 @@ import SpendingAnalysis from "./components/SpendingAnalysis";
 import PriceComparison from "./components/PriceComparison";
 import CostPerMeal from "./components/CostPerMeal";
 import EnhancedAddItem from "./components/EnhancedAddItem";
-import api from "./api";
+import ScanResultModal from "./components/ScanResultModal";
+import LandingPage from "./components/LandingPage";
+import Layout from "./components/Layout";
+import FoodMap from "./components/FoodMap";
+import PortionTracker from "./components/PortionTracker";
+import "./App.css";
 
 function App() {
   // toggling this forces re-fetch in components
   const [refreshKey, setRefreshKey] = useState(false);
+  const [scanModalOpen, setScanModalOpen] = useState(false);
+  const [scannedUpc, setScannedUpc] = useState("");
+  const [showManualAdd, setShowManualAdd] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
 
   const handleDetected = async (upc) => {
+    setScannedUpc(upc);
+    setScanModalOpen(true);
+    setShowScanner(false); // Close scanner when barcode is detected
+  };
+
+  const handleScanSave = async (itemData) => {
     try {
-      // For scanned items, we need additional info
-      const name = prompt("Product name (optional):");
-      const price = parseFloat(prompt("Purchase price:") || "0");
-      const store = prompt("Store name:") || "Unknown Store";
-      
-      if (price > 0) {
-        await api.post("/inventory", { 
-          upc, 
-          name: name || undefined,
-          purchase_price: price,
-          store,
-          quantity: 1
-        });
-        setRefreshKey((k) => !k);
-        setShowScanner(false);
-      } else {
-        alert("Please enter a valid purchase price");
-      }
-    } catch (e) {
-      console.error("Add-to-inventory failed:", e);
+      console.log("Sending item data:", itemData);
+      const response = await api.post("/inventory", itemData);
+      console.log("Response received:", response.data);
+      setRefreshKey((k) => !k);
+      setScanModalOpen(false);
+      alert("Item added successfully!");
+    } catch (error) {
+      console.error("Failed to add scanned item:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
       alert("Failed to add item. Please try again.");
     }
+  };
+
+  const handleScanCancel = () => {
+    setScanModalOpen(false);
+    setScannedUpc("");
   };
 
   const triggerRefresh = () => setRefreshKey((k) => !k);
 
   return (
-    <div className="App" style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <header style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h1 style={{ color: '#2c3e50', fontSize: '2.5rem' }}>🥘 SmartPantry</h1>
-        <p style={{ color: '#7f8c8d', fontSize: '1.1rem' }}>
-          Combat food insecurity with AI-powered inventory management
-        </p>
-      </header>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-        
-        {/* Location & Budget Setup */}
-        <div style={{ gridColumn: '1 / -1' }}>
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '250px' }}>
-              <LocationSetter onLocationSet={triggerRefresh} />
-            </div>
-            <div style={{ flex: 1, minWidth: '250px' }}>
-              <BudgetTracker onBudgetSet={triggerRefresh} />
-            </div>
-          </div>
-        </div>
-
-        {/* Add Items Section */}
-        <div style={{ 
-          background: '#f8f9fa', 
-          padding: '20px', 
-          borderRadius: '10px',
-          border: '2px solid #e9ecef'
-        }}>
-          <h2 style={{ color: '#495057', marginBottom: '15px' }}>📦 Add Items</h2>
-          
-          <div style={{ marginBottom: '15px' }}>
-            <button 
-              onClick={() => setShowScanner(!showScanner)}
-              style={{
-                background: showScanner ? '#dc3545' : '#28a745',
-                color: 'white',
-                border: 'none',
-                padding: '10px 20px',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                marginRight: '10px'
-              }}
-            >
-              {showScanner ? '📱 Stop Scanning' : '📱 Scan Barcode'}
-            </button>
-          </div>
-
-          {showScanner && (
-            <div style={{ marginBottom: '20px' }}>
-              <CodeScanner onDetected={handleDetected} />
-            </div>
-          )}
-
-          <EnhancedAddItem onItemAdded={triggerRefresh} />
-        </div>
-
-        {/* Current Inventory */}
-        <div style={{ 
-          background: '#f8f9fa', 
-          padding: '20px', 
-          borderRadius: '10px',
-          border: '2px solid #e9ecef'
-        }}>
-          <Inventory refreshKey={refreshKey} />
-        </div>
-
-        {/* Budget Analysis */}
-        <div style={{ 
-          background: '#f8f9fa', 
-          padding: '20px', 
-          borderRadius: '10px',
-          border: '2px solid #e9ecef'
-        }}>
-          <SpendingAnalysis refreshKey={refreshKey} />
-        </div>
-
-        {/* Cost Per Meal */}
-        <div style={{ 
-          background: '#f8f9fa', 
-          padding: '20px', 
-          borderRadius: '10px',
-          border: '2px solid #e9ecef'
-        }}>
-          <CostPerMeal refreshKey={refreshKey} />
-        </div>
-
-        {/* AI Features */}
-        <div style={{ 
-          background: '#e8f5e8', 
-          padding: '20px', 
-          borderRadius: '10px',
-          border: '2px solid #c3e6c3'
-        }}>
-          <MealPlan />
-        </div>
-
-        <div style={{ 
-          background: '#e8f5e8', 
-          padding: '20px', 
-          borderRadius: '10px',
-          border: '2px solid #c3e6c3'
-        }}>
-          <WhatCanIEat />
-        </div>
-
-        <div style={{ 
-          background: '#e8f5e8', 
-          padding: '20px', 
-          borderRadius: '10px',
-          border: '2px solid #c3e6c3'
-        }}>
-          <WasteTips />
-        </div>
-
-        {/* Price Optimization */}
-        <div style={{ 
-          background: '#fff3cd', 
-          padding: '20px', 
-          borderRadius: '10px',
-          border: '2px solid #ffeaa7',
-          gridColumn: '1 / -1'
-        }}>
-          <PriceComparison />
-        </div>
-
-      </div>
-
-      <footer style={{ 
-        textAlign: 'center', 
-        marginTop: '40px', 
-        padding: '20px',
-        color: '#7f8c8d',
-        borderTop: '1px solid #e9ecef'
-      }}>
-        <p>SmartPantry - Reducing food insecurity through intelligent inventory management</p>
-      </footer>
-    </div>
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/inventory" element={<Inventory refreshKey={refreshKey} />} />
+          <Route path="/budget" element={<BudgetTracker onBudgetSet={triggerRefresh} />} />
+          <Route path="/mealplan" element={<MealPlan refreshKey={refreshKey} />} />
+          <Route path="/tips" element={<WasteTips />} />
+          <Route path="/whatcanieat" element={<WhatCanIEat refreshKey={refreshKey} />} />
+          <Route path="/spending-analysis" element={<SpendingAnalysis refreshKey={refreshKey} />} />
+          <Route path="/price-comparison" element={<PriceComparison refreshKey={refreshKey} />} />
+          <Route path="/cost-per-meal" element={<CostPerMeal refreshKey={refreshKey} />} />
+          <Route path="/location" element={<LocationSetter />} />
+          <Route path="/map" element={<FoodMap />} />
+          <Route path="/portion-tracker" element={<PortionTracker refreshKey={refreshKey} />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 

@@ -47,94 +47,95 @@ export default function SpendingAnalysis({ refreshKey }) {
   const budgetStatus = getBudgetStatus();
 
   return (
-    <div>
-      <h2 style={{ color: '#495057', marginBottom: '15px' }}>💰 Budget Analysis</h2>
-      
-      {budgetData.monthly_budget ? (
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ 
-            background: '#f8f9fa', 
-            padding: '15px', 
-            borderRadius: '8px',
-            border: `2px solid ${budgetStatus.color}`
-          }}>
-            <h4 style={{ margin: '0 0 10px 0', color: budgetStatus.color }}>
-              {budgetStatus.status}
-            </h4>
-            
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Monthly Budget:</strong> ${budgetData.monthly_budget?.toFixed(2)}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Spent This Month:</strong> ${budgetData.spent_this_month?.toFixed(2)}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Remaining:</strong> ${budgetData.remaining_budget?.toFixed(2)}
-            </div>
-            <div style={{ marginBottom: '15px' }}>
-              <strong>Daily Average:</strong> ${budgetData.cost_per_day?.toFixed(2)}
-            </div>
-            
-            {/* Progress Bar */}
+    <div className="card">
+      <h2 className="card-title">💰 Budget Analysis</h2>
+      <div className="card-content">
+        {budgetData.monthly_budget ? (
+          <div style={{ marginBottom: '20px' }}>
             <div style={{ 
-              width: '100%', 
-              height: '20px', 
-              backgroundColor: '#e9ecef', 
-              borderRadius: '10px',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                width: `${getProgressPercentage()}%`,
-                height: '100%',
-                backgroundColor: budgetStatus.color,
-                transition: 'width 0.3s ease'
-              }}></div>
-            </div>
-            <small style={{ color: '#6c757d' }}>
-              {getProgressPercentage().toFixed(1)}% of budget used
-            </small>
-          </div>
-
-          <button 
-            onClick={fetchAnalysis}
-            disabled={loading}
-            style={{
-              background: '#007bff',
-              color: 'white',
-              border: 'none',
-              padding: '10px 15px',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              marginTop: '15px',
-              opacity: loading ? 0.6 : 1
-            }}
-          >
-            {loading ? 'Analyzing...' : '🤖 Get AI Analysis'}
-          </button>
-
-          {analysis && (
-            <div style={{ 
-              marginTop: '15px',
-              padding: '15px',
-              background: '#e8f4fd',
+              background: '#f8f9fa', 
+              padding: '15px', 
               borderRadius: '8px',
-              border: '1px solid #bee5eb'
+              border: `2px solid ${budgetStatus.color}`
             }}>
-              <h4 style={{ color: '#0c5460', marginBottom: '10px' }}>AI Insights:</h4>
-              <pre style={{ 
-                whiteSpace: 'pre-wrap', 
-                fontSize: '0.9rem',
-                color: '#495057',
-                margin: 0
+              <h4 style={{ margin: '0 0 10px 0', color: budgetStatus.color }}>
+                {budgetStatus.status}
+              </h4>
+              
+              <div style={{ marginBottom: '10px' }}>
+                <strong>Monthly Budget:</strong> ${budgetData.monthly_budget?.toFixed(2)}
+              </div>
+              <div style={{ marginBottom: '10px' }}>
+                <strong>Spent This Month:</strong> ${budgetData.spent_this_month?.toFixed(2)}
+              </div>
+              <div style={{ marginBottom: '10px' }}>
+                <strong>Remaining:</strong> ${budgetData.remaining_budget?.toFixed(2)}
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <strong>Daily Average:</strong> ${budgetData.cost_per_day?.toFixed(2)}
+              </div>
+              
+              {/* Progress Bar */}
+              <div style={{ 
+                width: '100%', 
+                height: '20px', 
+                backgroundColor: '#e9ecef', 
+                borderRadius: '10px',
+                overflow: 'hidden'
               }}>
-                {analysis}
-              </pre>
+                <div style={{
+                  width: `${getProgressPercentage()}%`,
+                  height: '100%',
+                  backgroundColor: budgetStatus.color,
+                  transition: 'width 0.3s ease'
+                }}></div>
+              </div>
+              <small style={{ color: '#6c757d' }}>
+                {getProgressPercentage().toFixed(1)}% of budget used
+              </small>
             </div>
-          )}
-        </div>
-      ) : (
-        <p style={{ color: '#6c757d' }}>Set a monthly budget to see spending analysis.</p>
-      )}
+
+            <button 
+              onClick={fetchAnalysis}
+              disabled={loading}
+              style={{
+                background: '#007bff',
+                color: 'white',
+                border: 'none',
+                padding: '10px 15px',
+                borderRadius: '4px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                marginTop: '15px',
+                opacity: loading ? 0.6 : 1
+              }}
+            >
+              {loading ? 'Analyzing...' : '🤖 Get AI Analysis'}
+            </button>
+
+            {analysis && (
+              <div style={{ 
+                marginTop: '15px',
+                padding: '15px',
+                background: '#e8f4fd',
+                borderRadius: '8px',
+                border: '1px solid #bee5eb'
+              }}>
+                <h4 style={{ color: '#0c5460', marginBottom: '10px' }}>AI Insights:</h4>
+                <pre style={{ 
+                  whiteSpace: 'pre-wrap', 
+                  fontSize: '0.9rem',
+                  color: '#495057',
+                  margin: 0
+                }}>
+                  {analysis}
+                </pre>
+              </div>
+            )}
+          </div>
+        ) : (
+          <p style={{ color: '#6c757d' }}>Set a monthly budget to see spending analysis.</p>
+        )}
+      </div>
     </div>
   );
 }

@@ -29,94 +29,97 @@ export default function CostPerMeal({ refreshKey }) {
 
   if (loading) {
     return (
-      <div>
-        <h2 style={{ color: '#495057', marginBottom: '15px' }}>🍽️ Cost Per Meal</h2>
-        <p>Calculating...</p>
+      <div className="card">
+        <h2 className="card-title">🍽️ Cost Per Meal</h2>
+        <div className="card-content">
+          <p>Calculating...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <h2 style={{ color: '#495057', marginBottom: '15px' }}>🍽️ Cost Per Meal</h2>
-      
-      {mealData ? (
-        <div style={{ 
-          background: '#f8f9fa', 
-          padding: '20px', 
-          borderRadius: '8px',
-          border: '1px solid #e9ecef'
-        }}>
+    <div className="card">
+      <h2 className="card-title">🍽️ Cost Per Meal</h2>
+      <div className="card-content">
+        {mealData ? (
           <div style={{ 
-            textAlign: 'center',
-            marginBottom: '20px'
+            background: '#f8f9fa', 
+            padding: '20px', 
+            borderRadius: '8px',
+            border: '1px solid #e9ecef'
           }}>
             <div style={{ 
-              fontSize: '2.5rem',
-              fontWeight: 'bold',
-              color: getCostColor(mealData.cost_per_meal),
-              marginBottom: '5px'
+              textAlign: 'center',
+              marginBottom: '20px'
             }}>
-              ${mealData.cost_per_meal}
+              <div style={{ 
+                fontSize: '2.5rem',
+                fontWeight: 'bold',
+                color: getCostColor(mealData.cost_per_meal),
+                marginBottom: '5px'
+              }}>
+                ${mealData.cost_per_meal}
+              </div>
+              <div style={{ color: '#6c757d', fontSize: '1.1rem' }}>
+                per meal
+              </div>
             </div>
-            <div style={{ color: '#6c757d', fontSize: '1.1rem' }}>
-              per meal
-            </div>
-          </div>
 
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: '15px',
-            marginBottom: '15px'
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#495057' }}>
-                {mealData.estimated_meals}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+              gap: '15px',
+              marginBottom: '15px'
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#495057' }}>
+                  {mealData.estimated_meals}
+                </div>
+                <div style={{ color: '#6c757d', fontSize: '0.9rem' }}>
+                  Estimated Meals
+                </div>
               </div>
-              <div style={{ color: '#6c757d', fontSize: '0.9rem' }}>
-                Estimated Meals
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#495057' }}>
+                  ${mealData.total_inventory_value}
+                </div>
+                <div style={{ color: '#6c757d', fontSize: '0.9rem' }}>
+                  Total Inventory Value
+                </div>
               </div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#495057' }}>
-                ${mealData.total_inventory_value}
-              </div>
-              <div style={{ color: '#6c757d', fontSize: '0.9rem' }}>
-                Total Inventory Value
-              </div>
+
+            <div style={{ 
+              background: '#e9ecef',
+              padding: '15px',
+              borderRadius: '6px',
+              fontSize: '0.9rem',
+              color: '#495057'
+            }}>
+              {mealData.analysis}
             </div>
-          </div>
 
-          <div style={{ 
-            background: '#e9ecef',
-            padding: '15px',
-            borderRadius: '6px',
-            fontSize: '0.9rem',
-            color: '#495057'
-          }}>
-            {mealData.analysis}
+            <button 
+              onClick={fetchMealData}
+              style={{
+                background: '#007bff',
+                color: 'white',
+                border: 'none',
+                padding: '8px 15px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                marginTop: '15px',
+                fontSize: '0.9rem'
+              }}
+            >
+              🔄 Recalculate
+            </button>
           </div>
-
-          <button 
-            onClick={fetchMealData}
-            style={{
-              background: '#007bff',
-              color: 'white',
-              border: 'none',
-              padding: '8px 15px',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginTop: '15px',
-              fontSize: '0.9rem'
-            }}
-          >
-            🔄 Recalculate
-          </button>
-        </div>
-      ) : (
-        <p style={{ color: '#6c757d' }}>Add items to your inventory to see cost per meal analysis.</p>
-      )}
+        ) : (
+          <p style={{ color: '#6c757d' }}>Add items to your inventory to see cost per meal analysis.</p>
+        )}
+      </div>
     </div>
   );
 }
