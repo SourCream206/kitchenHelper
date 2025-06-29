@@ -157,6 +157,7 @@ export default function LocationSetter({ onLocationSet }) {
 
   // Common locations for quick selection
   const quickLocations = [
+    { zip: "M5V 3A8", city: "Toronto, ON" },
     { zip: "10001", city: "New York, NY" },
     { zip: "90210", city: "Beverly Hills, CA" },
     { zip: "60601", city: "Chicago, IL" },
