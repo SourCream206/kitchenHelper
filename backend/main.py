@@ -19,6 +19,20 @@ openai.api_key = OPENAI_API_KEY
 # Free Open Food Facts API
 OFF_API_BASE = "https://world.openfoodfacts.org/api/v0/product"
 
+# Local product cache for common items
+PRODUCT_CACHE = {
+    "6001253010178": {
+        "found": True,
+        "name": "Bread",
+        "category": "bread",
+        "brand": "",
+        "nutrition": {"calories": 80, "carbs": 15, "protein": 3},
+        "image_url": "",
+        "upc": "6001253010178"
+    },
+    # Add more common products here
+}
+
 app = FastAPI(title="SmartPantry API")
 
 # CORS—allow requests from React dev server
@@ -38,15 +52,20 @@ purchase_history: List["PurchaseRecord"] = []
 
 
 class InventoryItem(BaseModel):
+    id: Optional[str] = None  # Add ID field for React keys
     upc: str
-    name: str = None
-    purchase_price: float = None
-    store: str = None
+    name: Optional[str] = None
+    purchase_price: Optional[float] = None
+    store: Optional[str] = None
     quantity: int = Field(1, ge=1)
-    expiry: datetime = None
+    unit: str = "pieces"  # Add unit field
+    remaining_quantity: Optional[int] = None  # Add remaining quantity field
+    total_quantity: Optional[int] = None  # Add total quantity field
+    expiry: Optional[datetime] = None
+    expiry_date: Optional[str] = None  # Add expiry_date field for frontend
     nutrition: Dict[str, float] = {}
-    category: str = None
-    purchase_date: datetime = None
+    category: Optional[str] = None
+    purchase_date: Optional[datetime] = None
 
 
 class PurchaseRecord(BaseModel):
@@ -73,13 +92,81 @@ class MealPlanRequest(BaseModel):
 
 
 class EnhancedInventoryItem(BaseModel):
-    upc: str
-    name: str = None
+    upc: Optional[str] = None  # Make UPC optional
+    name: Optional[str] = None
     purchase_price: float = Field(..., gt=0)
     store: str
     quantity: int = Field(1, ge=1)
-    category: str = None
+    category: Optional[str] = None
+    unit: str = "pieces"  # Add unit field with default value
 
+
+# Add this before the location endpoints
+async def fetch_product_info(upc: str) -> dict:
+    """Fetch product information from Open Food Facts API with local cache"""
+    print(f"🔍 Fetching product info for UPC: {upc}")
+    
+    # Check local cache first (only for specific known products)
+    if upc in PRODUCT_CACHE:
+        print(f"✅ Found {upc} in local cache: {PRODUCT_CACHE[upc]['name']}")
+        return PRODUCT_CACHE[upc]
+    
+    print(f"🌐 UPC {upc} not in cache, fetching from Open Food Facts API...")
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{OFF_API_BASE}/{upc}.json", timeout=3.0)  # Reduced timeout to 3 seconds
+            print(f"📡 API Response Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"📦 API Response Data: {data}")
+                
+                if data.get("status") == 1:  # Product found
+                    product = data.get("product", {})
+                    result = {
+                        "found": True,
+                        "name": product.get("product_name", f"Product (UPC: {upc})"),
+                        "category": product.get("categories_tags", ["food"])[0] if product.get("categories_tags") else "food",
+                        "brand": product.get("brands", ""),
+                        "nutrition": product.get("nutriments", {}),
+                        "image_url": product.get("image_url", ""),
+                        "upc": upc
+                    }
+                    print(f"✅ Found product in API: {result['name']}")
+                    print(f"📋 Product details: {result}")
+                    
+                    # Only cache products that are actually found in the API AND have a real name
+                    if result['name'] and result['name'] != f"Product (UPC: {upc})":
+                        PRODUCT_CACHE[upc] = result
+                        print(f"💾 Cached product: {result['name']}")
+                    
+                    return result
+                else:
+                    print(f"❌ Product not found in Open Food Facts API for UPC: {upc}")
+                    print(f"📋 API Response: {data}")
+            else:
+                print(f"❌ API returned status {response.status_code} for UPC: {upc}")
+    except Exception as e:
+        print(f"❌ Error fetching product info for UPC {upc}: {e}")
+    
+    # Fallback for when API fails or product not found
+    print(f"⚠️ Using fallback for UPC: {upc}")
+    return {
+        "found": False,
+        "name": f"Product (UPC: {upc})",
+        "category": "food",
+        "brand": "",
+        "nutrition": {},
+        "image_url": "",
+        "upc": upc,
+        "error": "Product not found in database"
+    }
+
+@app.get("/product/{upc}")
+async def get_product_info(upc: str):
+    """Get product information by UPC"""
+    return await fetch_product_info(upc)
 
 # Location endpoints
 @app.post("/location")
@@ -166,7 +253,7 @@ async def get_spending_analysis():
 
 
 # AI-powered expiry estimation
-async def estimate_expiry_date(product_name: str, category: str = None) -> datetime:
+async def estimate_expiry_date(product_name: str, category: Optional[str] = None) -> datetime:
     """Use AI to estimate expiry date based on product type"""
     prompt = f"""
     Estimate the shelf life in days for: {product_name}
@@ -189,43 +276,58 @@ async def estimate_expiry_date(product_name: str, category: str = None) -> datet
             "pantry": 180,
             "frozen": 90
         }
-        days = default_days.get(category, 30)
+        days = default_days.get(category or "unknown", 30)
         return datetime.utcnow() + timedelta(days=days)
 
 
 # Enhanced inventory endpoints
 @app.post("/inventory", response_model=InventoryItem)
 async def add_inventory(item: EnhancedInventoryItem):
-    # Get product info from Open Food Facts
-    async with httpx.AsyncClient() as client:
-        try:
-            resp = await client.get(f"{OFF_API_BASE}/{item.upc}.json", timeout=10)
-            data = resp.json().get("product", {})
-        except:
-            data = {}
+    # Generate a UPC if not provided
+    upc = item.upc or f"generated_{int(datetime.utcnow().timestamp())}"
+    
+    # Generate a unique ID
+    item_id = f"item_{int(datetime.utcnow().timestamp())}"
+    
+    # Get product info from Open Food Facts if UPC is provided
+    data = {}
+    if item.upc:
+        async with httpx.AsyncClient() as client:
+            try:
+                resp = await client.get(f"{OFF_API_BASE}/{item.upc}.json", timeout=10)
+                data = resp.json().get("product", {})
+            except:
+                data = {}
+    
+    # Get product name and category
+    product_name = item.name or data.get("product_name", "Unknown product")
+    product_category = item.category or data.get("categories", "").split(",")[0] if data.get("categories") else None
+    
+    # AI-powered expiry estimation
+    expiry_date = await estimate_expiry_date(product_name, product_category or "food")
     
     # Create inventory item
     inventory_item = InventoryItem(
-        upc=item.upc,
-        name=item.name or data.get("product_name", "Unknown product"),
+        id=item_id,
+        upc=upc,
+        name=product_name,
         purchase_price=item.purchase_price,
         store=item.store,
         quantity=item.quantity,
-        category=item.category or data.get("categories", "").split(",")[0] if data.get("categories") else None,
+        unit=item.unit or "pieces",
+        remaining_quantity=item.quantity,
+        total_quantity=item.quantity,
+        expiry=expiry_date,
+        expiry_date=expiry_date.isoformat() if expiry_date else None,
         nutrition=data.get("nutriments", {}),
+        category=product_category,
         purchase_date=datetime.utcnow()
-    )
-    
-    # AI-powered expiry estimation
-    inventory_item.expiry = await estimate_expiry_date(
-        inventory_item.name, 
-        inventory_item.category
     )
     
     # Add to purchase history
     purchase_record = PurchaseRecord(
-        upc=item.upc,
-        item_name=inventory_item.name,
+        upc=upc,
+        item_name=product_name,
         price=item.purchase_price,
         store=item.store,
         date=datetime.utcnow(),
@@ -270,7 +372,9 @@ async def clear_inventory():
 # OpenAI helper
 def call_openai(prompt: str, system: str) -> str:
     try:
-        resp = openai.ChatCompletion.create(
+        from openai import OpenAI
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        resp = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system},
@@ -278,7 +382,8 @@ def call_openai(prompt: str, system: str) -> str:
             ],
             temperature=0.7,
         )
-        return resp.choices[0].message.content.strip()
+        content = resp.choices[0].message.content
+        return content.strip() if content else "No response from AI"
     except Exception as e:
         return f"AI service temporarily unavailable: {str(e)}"
 

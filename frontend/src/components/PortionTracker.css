@@ -1,0 +1,568 @@
+.portion-tracker-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.tracker-header {
+  text-align: center;
+  margin-bottom: 30px;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+}
+
+.tracker-header h2 {
+  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.tracker-header p {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Meal Suggestions Section */
+.meal-suggestions-section {
+  margin-bottom: 40px;
+}
+
+.meal-suggestions-section h3 {
+  color: #2E7D32;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.meal-suggestions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.meal-suggestion-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #4CAF50;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.meal-suggestion-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.meal-suggestion-card h4 {
+  color: #2E7D32;
+  margin: 0 0 15px 0;
+  font-size: 1.3rem;
+}
+
+.portions-needed {
+  margin-bottom: 15px;
+}
+
+.portions-needed strong {
+  color: #555;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.portions-needed ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.portions-needed li {
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.meal-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.estimated-cost {
+  background: #4CAF50;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.servings {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Inventory Section */
+.inventory-section {
+  margin-bottom: 40px;
+}
+
+.inventory-section h3 {
+  color: #2E7D32;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.empty-inventory {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.empty-inventory p {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.inventory-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-left: 4px solid #4CAF50;
+}
+
+.inventory-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.inventory-card.expired {
+  border-left-color: #f44336;
+  background: linear-gradient(135deg, #fff5f5, #fff);
+}
+
+.inventory-card.expiring-soon {
+  border-left-color: #ff9800;
+  background: linear-gradient(135deg, #fff8e1, #fff);
+}
+
+.inventory-card.expiring-week {
+  border-left-color: #ffc107;
+  background: linear-gradient(135deg, #fffde7, #fff);
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.item-header h4 {
+  color: #2E7D32;
+  margin: 0;
+  font-size: 1.2rem;
+  flex: 1;
+}
+
+.expiry-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.expiry-badge.expired {
+  background: #f44336;
+  color: white;
+}
+
+.expiry-badge.expiring-soon {
+  background: #ff9800;
+  color: white;
+}
+
+.expiry-badge.expiring-week {
+  background: #ffc107;
+  color: #333;
+}
+
+.expiry-badge.good {
+  background: #4CAF50;
+  color: white;
+}
+
+.expiry-badge.no-expiry {
+  background: #9e9e9e;
+  color: white;
+}
+
+.item-details {
+  margin-bottom: 20px;
+}
+
+.quantity-info {
+  margin-bottom: 10px;
+}
+
+.remaining {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2E7D32;
+}
+
+.total {
+  color: #666;
+  font-size: 0.9rem;
+  margin-left: 5px;
+}
+
+.usage-bar {
+  width: 100%;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.usage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #45a049);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.usage-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.usage-percentage {
+  color: #4CAF50;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.category {
+  background: #e8f5e8;
+  color: #2E7D32;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.item-actions {
+  text-align: center;
+}
+
+.use-portion-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.use-portion-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.use-portion-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Meal History Section */
+.meal-history-section {
+  margin-bottom: 40px;
+}
+
+.meal-history-section h3 {
+  color: #2E7D32;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.empty-history {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.meal-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.meal-history-item {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #4CAF50;
+}
+
+.meal-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.meal-info h4 {
+  color: #2E7D32;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.meal-date {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.meal-portions {
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.portion-tag {
+  background: #e8f5e8;
+  color: #2E7D32;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.meal-cost {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.use-portion-modal {
+  background: white;
+  border-radius: 15px;
+  padding: 0;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  padding: 20px;
+  border-radius: 15px 15px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
+
+.close-modal:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.portion-form {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 30px;
+}
+
+.form-actions button {
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.form-actions button:first-child {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.form-actions button:first-child:hover {
+  background: #e0e0e0;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e0e0e0;
+  border-top: 4px solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .portion-tracker-container {
+    padding: 15px;
+  }
+  
+  .tracker-header h2 {
+    font-size: 2rem;
+  }
+  
+  .meal-suggestions-grid,
+  .inventory-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .meal-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+} 

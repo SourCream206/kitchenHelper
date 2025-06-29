@@ -2,5 +2,11 @@ fastapi
 uvicorn[standard]
 pydantic
 python-dotenv
-openai
+openai>=1.0.0
 httpx
+python-multipart
+Pillow
+pytesseract
+
+# Note: pytesseract requires Tesseract OCR to be installed on the system
+# See README_TESSERACT.md for installation instructions

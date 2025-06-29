@@ -8,24 +8,61 @@ export default function EnhancedAddItem({ onItemAdded }) {
   const [store, setStore] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [category, setCategory] = useState("");
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!upc.trim()) {
+      newErrors.upc = "UPC/Barcode is required";
+    }
+    
+    if (!price || parseFloat(price) <= 0) {
+      newErrors.price = "Please enter a valid price greater than 0";
+    }
+    
+    if (!store.trim()) {
+      newErrors.store = "Store name is required";
+    }
+    
+    if (!quantity || quantity < 1) {
+      newErrors.quantity = "Quantity must be at least 1";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!upc || !price || !store) {
-      alert("Please fill in UPC, price, and store fields");
+    if (!validateForm()) {
       return;
     }
 
+    setIsSubmitting(true);
+    
     try {
-      await api.post("/inventory", {
-        upc,
-        name: name || undefined,
+      console.log("Sending item data:", {
+        upc: upc.trim(),
+        name: name.trim() || undefined,
         purchase_price: parseFloat(price),
-        store,
+        store: store.trim(),
         quantity: parseInt(quantity),
-        category: category || undefined
+        category: category.trim() || undefined
       });
+      
+      const response = await api.post("/inventory", {
+        upc: upc.trim(),
+        name: name.trim() || undefined,
+        purchase_price: parseFloat(price),
+        store: store.trim(),
+        quantity: parseInt(quantity),
+        category: category.trim() || undefined
+      });
+      
+      console.log("Response received:", response.data);
       
       // Reset form
       setUpc("");
@@ -34,12 +71,28 @@ export default function EnhancedAddItem({ onItemAdded }) {
       setStore("");
       setQuantity(1);
       setCategory("");
+      setErrors({});
       
       onItemAdded();
       alert("Item added successfully!");
     } catch (error) {
       console.error("Failed to add item:", error);
-      alert("Failed to add item. Please try again.");
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      
+      // Provide more specific error messages
+      let errorMessage = "Failed to add item. Please try again.";
+      if (error.response?.status === 422) {
+        errorMessage = "Invalid data provided. Please check your inputs.";
+      } else if (error.response?.status === 400) {
+        errorMessage = "Bad request. Please check your inputs.";
+      } else if (error.response?.status >= 500) {
+        errorMessage = "Server error. Please try again later.";
+      }
+      
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -47,14 +100,27 @@ export default function EnhancedAddItem({ onItemAdded }) {
     <div>
       <h3 style={{ color: '#495057', marginBottom: '15px' }}>➕ Add Item Manually</h3>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <input
-          type="text"
-          value={upc}
-          onChange={(e) => setUpc(e.target.value)}
-          placeholder="UPC/Barcode (required)"
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ced4da' }}
-          required
-        />
+        <div>
+          <input
+            type="text"
+            value={upc}
+            onChange={(e) => setUpc(e.target.value)}
+            placeholder="UPC/Barcode (required)"
+            style={{ 
+              width: '100%',
+              padding: '8px', 
+              borderRadius: '4px', 
+              border: errors.upc ? '1px solid #dc3545' : '1px solid #ced4da' 
+            }}
+            required
+          />
+          {errors.upc && (
+            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '5px' }}>
+              {errors.upc}
+            </div>
+          )}
+        </div>
+        
         <input
           type="text"
           value={name}
@@ -62,32 +128,72 @@ export default function EnhancedAddItem({ onItemAdded }) {
           placeholder="Product name (optional)"
           style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ced4da' }}
         />
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="Purchase price (required)"
-          min="0"
-          step="0.01"
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ced4da' }}
-          required
-        />
-        <input
-          type="text"
-          value={store}
-          onChange={(e) => setStore(e.target.value)}
-          placeholder="Store name (required)"
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ced4da' }}
-          required
-        />
-        <input
-          type="number"
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
-          placeholder="Quantity"
-          min="1"
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ced4da' }}
-        />
+        
+        <div>
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="Purchase price (required)"
+            min="0.01"
+            step="0.01"
+            style={{ 
+              width: '100%',
+              padding: '8px', 
+              borderRadius: '4px', 
+              border: errors.price ? '1px solid #dc3545' : '1px solid #ced4da' 
+            }}
+            required
+          />
+          {errors.price && (
+            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '5px' }}>
+              {errors.price}
+            </div>
+          )}
+        </div>
+        
+        <div>
+          <input
+            type="text"
+            value={store}
+            onChange={(e) => setStore(e.target.value)}
+            placeholder="Store name (required)"
+            style={{ 
+              width: '100%',
+              padding: '8px', 
+              borderRadius: '4px', 
+              border: errors.store ? '1px solid #dc3545' : '1px solid #ced4da' 
+            }}
+            required
+          />
+          {errors.store && (
+            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '5px' }}>
+              {errors.store}
+            </div>
+          )}
+        </div>
+        
+        <div>
+          <input
+            type="number"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            placeholder="Quantity"
+            min="1"
+            style={{ 
+              width: '100%',
+              padding: '8px', 
+              borderRadius: '4px', 
+              border: errors.quantity ? '1px solid #dc3545' : '1px solid #ced4da' 
+            }}
+          />
+          {errors.quantity && (
+            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '5px' }}>
+              {errors.quantity}
+            </div>
+          )}
+        </div>
+        
         <input
           type="text"
           value={category}
@@ -95,18 +201,21 @@ export default function EnhancedAddItem({ onItemAdded }) {
           placeholder="Category (optional)"
           style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ced4da' }}
         />
+        
         <button 
           type="submit"
+          disabled={isSubmitting}
           style={{
-            background: '#28a745',
+            background: isSubmitting ? '#6c757d' : '#28a745',
             color: 'white',
             border: 'none',
             padding: '10px',
             borderRadius: '4px',
-            cursor: 'pointer'
+            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+            opacity: isSubmitting ? 0.7 : 1
           }}
         >
-          Add Item
+          {isSubmitting ? 'Adding...' : 'Add Item'}
         </button>
       </form>
     </div>
