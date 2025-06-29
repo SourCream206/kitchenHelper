@@ -47,7 +47,7 @@ app.add_middleware(
 # In-memory stores
 inventory: List["InventoryItem"] = []
 budget_state: Dict[str, float] = {"monthly_budget": 0.0, "spent_this_month": 0.0}
-user_location: Dict[str, str] = {"zip_code": "", "city": ""}
+user_location: Dict[str, str] = {"zip_code": "M5V 3A8", "city": "Toronto, ON"}
 purchase_history: List["PurchaseRecord"] = []
 
 
@@ -179,6 +179,109 @@ async def set_location(location: LocationUpdate):
 @app.get("/location")
 async def get_location():
     return user_location
+
+
+@app.get("/nearby-stores")
+async def get_nearby_stores():
+    """Get nearby grocery stores and food options"""
+    # Get user location for context
+    location = user_location.get("city", "Toronto")
+    
+    # Mock data for Toronto area stores
+    toronto_stores = [
+        {
+            "id": 1,
+            "name": "Loblaws",
+            "address": "123 Queen St W, Toronto, ON",
+            "distance": "0.8 km",
+            "rating": 4.2,
+            "price_level": "$$",
+            "types": ["grocery_store", "supermarket"],
+            "position": {
+                "lat": 43.6532 + 0.01,
+                "lng": -79.3832 + 0.01
+            },
+            "hours": "7:00 AM - 11:00 PM",
+            "phone": "(416) 555-1234"
+        },
+        {
+            "id": 2,
+            "name": "Sobeys",
+            "address": "456 Yonge St, Toronto, ON",
+            "distance": "1.2 km",
+            "rating": 4.5,
+            "price_level": "$$",
+            "types": ["grocery_store"],
+            "position": {
+                "lat": 43.6532 - 0.008,
+                "lng": -79.3832 + 0.015
+            },
+            "hours": "7:00 AM - 10:00 PM",
+            "phone": "(416) 555-2345"
+        },
+        {
+            "id": 3,
+            "name": "No Frills",
+            "address": "789 Dundas St W, Toronto, ON",
+            "distance": "1.5 km",
+            "rating": 4.0,
+            "price_level": "$",
+            "types": ["grocery_store", "discount_store"],
+            "position": {
+                "lat": 43.6532 + 0.012,
+                "lng": -79.3832 - 0.005
+            },
+            "hours": "8:00 AM - 9:00 PM",
+            "phone": "(416) 555-3456"
+        },
+        {
+            "id": 4,
+            "name": "Walmart Supercenter",
+            "address": "321 Dufferin St, Toronto, ON",
+            "distance": "2.1 km",
+            "rating": 4.3,
+            "price_level": "$$",
+            "types": ["department_store", "grocery_store"],
+            "position": {
+                "lat": 43.6532 - 0.015,
+                "lng": -79.3832 - 0.01
+            },
+            "hours": "8:00 AM - 10:00 PM",
+            "phone": "(416) 555-4567"
+        },
+        {
+            "id": 5,
+            "name": "Whole Foods Market",
+            "address": "654 Avenue Rd, Toronto, ON",
+            "distance": "2.8 km",
+            "rating": 4.7,
+            "price_level": "$$$",
+            "types": ["grocery_store", "organic_store"],
+            "position": {
+                "lat": 43.6532 + 0.018,
+                "lng": -79.3832 + 0.02
+            },
+            "hours": "7:00 AM - 10:00 PM",
+            "phone": "(416) 555-5678"
+        },
+        {
+            "id": 6,
+            "name": "FreshCo",
+            "address": "987 Bloor St W, Toronto, ON",
+            "distance": "3.2 km",
+            "rating": 4.1,
+            "price_level": "$",
+            "types": ["grocery_store", "supermarket"],
+            "position": {
+                "lat": 43.6532 + 0.025,
+                "lng": -79.3832 - 0.015
+            },
+            "hours": "7:00 AM - 11:00 PM",
+            "phone": "(416) 555-6789"
+        }
+    ]
+    
+    return {"stores": toronto_stores}
 
 
 # Enhanced budget endpoints

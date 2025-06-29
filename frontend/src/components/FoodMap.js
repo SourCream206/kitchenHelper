@@ -31,8 +31,23 @@ export default function FoodMap() {
         return;
       }
 
-      // Get user's current coordinates
-      const coords = await getCurrentPosition();
+      // Try to get user's current coordinates, fallback to location from backend
+      let coords;
+      try {
+        coords = await getCurrentPosition();
+      } catch (err) {
+        console.log('Geolocation failed, using backend location:', err);
+        // Use coordinates from backend location
+        if (location.zip_code) {
+          coords = await getCoordinatesFromZipCode(location.zip_code);
+        } else if (location.city) {
+          coords = await getCoordinatesFromCity(location.city);
+        } else {
+          // Fallback to Toronto coordinates
+          coords = { lat: 43.6532, lng: -79.3832 };
+        }
+      }
+      
       setUserLocation(coords);
 
       // Fetch nearby stores
@@ -40,11 +55,7 @@ export default function FoodMap() {
       
     } catch (err) {
       console.error('Error loading map:', err);
-      if (err.message && err.message.includes('Geolocation not supported')) {
-        setError('Your browser does not support location services. Please enter your location manually.');
-      } else {
-        setError('Failed to load map. Please check your location settings.');
-      }
+      setError('Failed to load map. Please check your location settings.');
     } finally {
       setLoading(false);
     }
@@ -66,27 +77,8 @@ export default function FoodMap() {
         },
         (error) => {
           console.error('Geolocation error:', error);
-          // Provide more specific error messages
-          let errorMessage = 'Location access denied';
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage = 'Location access denied. Please enable location permissions in your browser settings.';
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMessage = 'Location information unavailable.';
-              break;
-            case error.TIMEOUT:
-              errorMessage = 'Location request timed out.';
-              break;
-            default:
-              errorMessage = 'Unable to get your location.';
-          }
-          
-          // Show error to user and provide fallback
-          setError(errorMessage);
-          
-          // Fallback to a default location (New York City)
-          resolve({ lat: 40.7128, lng: -74.0060 });
+          // Let the error propagate to be handled by loadMap
+          reject(error);
         },
         {
           enableHighAccuracy: false,
@@ -255,6 +247,7 @@ export default function FoodMap() {
     // In a real app, you'd use a geocoding service
     // For now, we'll use some common ZIP codes
     const zipCoordinates = {
+      'M5V 3A8': { lat: 43.6532, lng: -79.3832 }, // Toronto
       '10001': { lat: 40.7505, lng: -73.9934 }, // NYC
       '90210': { lat: 34.1030, lng: -118.4105 }, // Beverly Hills
       '60601': { lat: 41.8857, lng: -87.6228 }, // Chicago
@@ -267,14 +260,15 @@ export default function FoodMap() {
       return zipCoordinates[zipCode];
     }
 
-    // Default to NYC if ZIP not found
-    return { lat: 40.7128, lng: -74.0060 };
+    // Default to Toronto if ZIP not found
+    return { lat: 43.6532, lng: -79.3832 };
   };
 
   const getCoordinatesFromCity = async (city) => {
     // In a real app, you'd use a geocoding service
     // For now, we'll use some common cities
     const cityCoordinates = {
+      'toronto': { lat: 43.6532, lng: -79.3832 },
       'new york': { lat: 40.7128, lng: -74.0060 },
       'los angeles': { lat: 34.0522, lng: -118.2437 },
       'chicago': { lat: 41.8781, lng: -87.6298 },
@@ -292,8 +286,8 @@ export default function FoodMap() {
       return cityCoordinates[cityLower];
     }
 
-    // Default to NYC if city not found
-    return { lat: 40.7128, lng: -74.0060 };
+    // Default to Toronto if city not found
+    return { lat: 43.6532, lng: -79.3832 };
   };
 
   const requestLocationPermission = () => {
@@ -412,6 +406,15 @@ export default function FoodMap() {
               <div className="location-examples">
                 <p><strong>Example locations:</strong></p>
                 <div className="example-locations">
+                  <button 
+                    onClick={() => {
+                      setManualZipCode('M5V 3A8');
+                      setManualCity('');
+                    }}
+                    className="example-btn"
+                  >
+                    Toronto (M5V 3A8)
+                  </button>
                   <button 
                     onClick={() => {
                       setManualZipCode('10001');
@@ -541,6 +544,15 @@ export default function FoodMap() {
                 <div className="location-examples">
                   <p><strong>Example locations:</strong></p>
                   <div className="example-locations">
+                    <button 
+                      onClick={() => {
+                        setManualZipCode('M5V 3A8');
+                        setManualCity('');
+                      }}
+                      className="example-btn"
+                    >
+                      Toronto (M5V 3A8)
+                    </button>
                     <button 
                       onClick={() => {
                         setManualZipCode('10001');

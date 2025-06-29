@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../App.css";
 
 const features = [
@@ -62,78 +62,184 @@ const statistics = [
   }
 ];
 
+const sdgGoals = [
+  {
+    goal: "2.1",
+    title: "End Hunger",
+    description: "By 2030, end hunger and ensure access by all people to safe, nutritious and sufficient food all year round"
+  },
+  {
+    goal: "2.2",
+    title: "End Malnutrition",
+    description: "By 2030, end all forms of malnutrition, including achieving internationally agreed targets on stunting and wasting in children under 5 years of age"
+  },
+  {
+    goal: "2.3",
+    title: "Double Agricultural Productivity",
+    description: "By 2030, double the agricultural productivity and incomes of small-scale food producers"
+  },
+  {
+    goal: "2.4",
+    title: "Sustainable Food Production",
+    description: "By 2030, ensure sustainable food production systems and implement resilient agricultural practices"
+  }
+];
+
 export default function LandingPage() {
+  const [currentStat, setCurrentStat] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentStat((prev) => (prev + 1) % statistics.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="landing fade-in">
+      {/* Hero Section */}
       <section className="plant-hero">
+        <div className="hero-background">
+          <div className="hero-overlay"></div>
+        </div>
         <span className="plant-icon" role="img" aria-label="plant">🌱</span>
-        <h1 className="hero-title" style={{ color: '#3cb371', textAlign: 'center', fontWeight: 900, fontSize: 'clamp(2.5rem, 5vw, 4rem)', marginBottom: '1rem' }}>
+        <h1 className="hero-title">
           PantryPilot
         </h1>
-        <p className="hero-tagline" style={{ color: '#388e3c', fontSize: 'clamp(1.1rem, 2.5vw, 1.5rem)', marginBottom: '1rem', textAlign: 'center', fontWeight: 600 }}>
-          Scan it, plan it, don't can it
+        <p className="hero-tagline">
+          Empowering Sustainable Food Security
         </p>
-        <p className="hero-subtitle" style={{ color: '#388e3c', fontSize: 'clamp(1rem, 2vw, 1.3rem)', marginBottom: '2.5rem', textAlign: 'center', opacity: 0.9 }}>
-          Grow your savings, shrink your waste.<br />
-          The nature-inspired, AI-powered pantry and meal planner.
+        <p className="hero-subtitle">
+          Scan it, plan it, don't waste it.
         </p>
-        <a href="/inventory" className="get-started-btn" style={{ background: '#3cb371', color: '#fff', borderRadius: '2rem', fontWeight: 700, fontSize: 'clamp(1rem, 2vw, 1.15rem)', padding: 'clamp(0.8rem, 2vw, 0.9rem) clamp(1.8rem, 4vw, 2.2rem)', textDecoration: 'none', boxShadow: '0 2px 16px rgba(60,179,113,0.10)', transition: 'background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s', border: 'none' }}>
-          Get Started
-        </a>
+        <div className="hero-buttons">
+          <a href="/inventory" className="get-started-btn">
+            Get Started
+          </a>
+          <a href="#sdg-section" className="learn-more-btn">
+            Learn About SDG 2
+          </a>
+        </div>
       </section>
 
+      {/* UN SDG Goal 2 Section */}
+      <section id="sdg-section" className="sdg-section">
+        <div className="sdg-header">
+          <div className="sdg-logo">
+            <span className="sdg-number">2</span>
+          </div>
+          <div className="sdg-content">
+            <h2>UN Sustainable Development Goal</h2>
+            <h3>"Zero Hunger"</h3>
+            <p>
+              End hunger, achieve food security and improved nutrition and promote sustainable agriculture
+            </p>
+          </div>
+        </div>
+        
+        <div className="sdg-targets">
+          <h3>Key Targets for 2030</h3>
+          <div className="targets-grid">
+            {sdgGoals.map((target, index) => (
+              <div className="target-card" key={index}>
+                <div className="target-number">{target.goal}</div>
+                <h4>{target.title}</h4>
+                <p>{target.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Statistics Section */}
       <section className="statistics-section">
-        <h2 className="statistics-title" style={{ color: '#3cb371', fontSize: 'clamp(1.5rem, 3vw, 2rem)', textAlign: 'center', marginBottom: '2rem' }}>
-          The Global Food Crisis
-        </h2>
+        <h2>The Global Food Crisis</h2>
         <div className="statistics-grid">
           {statistics.map((stat, index) => (
-            <div className="stat-card fade-in" key={index} style={{ animationDelay: `${0.1 * index}s` }}>
-              <div className="stat-number" style={{ color: '#3cb371', fontSize: 'clamp(2rem, 4vw, 2.5rem)', fontWeight: 900, marginBottom: '0.5rem' }}>
+            <div 
+              className={`stat-card fade-in ${index === currentStat ? 'active' : ''}`} 
+              key={index} 
+              style={{ animationDelay: `${0.1 * index}s` }}
+            >
+              <div className="stat-number">
                 {stat.number}
               </div>
-              <div className="stat-label" style={{ color: '#388e3c', fontSize: 'clamp(1rem, 2vw, 1.1rem)', fontWeight: 600, marginBottom: '0.5rem' }}>
+              <div className="stat-label">
                 {stat.label}
               </div>
-              <div className="stat-description" style={{ color: '#388e3c', fontSize: 'clamp(0.9rem, 1.8vw, 1rem)', opacity: 0.8 }}>
+              <div className="stat-description">
                 {stat.description}
               </div>
             </div>
           ))}
         </div>
-        <div className="statistics-callout" style={{ background: '#e8f5e9', padding: 'clamp(1.5rem, 3vw, 2rem)', borderRadius: '12px', marginTop: '2rem', textAlign: 'center' }}>
-          <h3 style={{ color: '#3cb371', fontSize: 'clamp(1.2rem, 2.5vw, 1.4rem)', marginBottom: '1rem' }}>
-            How PantryPilot Makes a Difference
-          </h3>
-          <p style={{ color: '#388e3c', fontSize: 'clamp(1rem, 2vw, 1.1rem)', lineHeight: '1.6' }}>
+        <div className="statistics-callout">
+          <h3>How PantryPilot Contributes to Zero Hunger</h3>
+          <p>
             Every household that reduces food waste contributes to solving this global crisis. 
             Our AI-powered platform helps families worldwide stretch their food budget, 
             reduce waste, and make every ingredient count. Together, we can create a more 
-            sustainable and equitable food system.
+            sustainable and equitable food system that supports the UN's vision of Zero Hunger by 2030.
           </p>
         </div>
       </section>
 
+      {/* Mission Section */}
       <section className="mission-section">
-        <h2 className="mission-title" style={{ color: '#388e3c', fontSize: 'clamp(1.5rem, 3vw, 2rem)', textAlign: 'center' }}>Our Mission</h2>
-        <p className="mission-desc" style={{ color: '#388e3c', fontSize: 'clamp(1rem, 2vw, 1.1rem)', textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
+        <h2>Our Mission</h2>
+        <p className="mission-desc">
           To empower every household to eat better, waste less, and save more—using the power of AI and smart food management.
+          We're committed to creating a world where no one goes hungry.
         </p>
+        <div className="mission-pillars">
+          <div className="pillar">
+            <div className="pillar-icon">🌍</div>
+            <h4>Global Impact</h4>
+            <p>Supporting sustainable development through local action</p>
+          </div>
+          <div className="pillar">
+            <div className="pillar-icon">🤖</div>
+            <h4>AI-Powered</h4>
+            <p>Smart technology for better decisions</p>
+          </div>
+          <div className="pillar">
+            <div className="pillar-icon">💚</div>
+            <h4>Sustainable</h4>
+            <p>Reducing waste, protecting our planet</p>
+          </div>
+        </div>
       </section>
+
+      {/* Features Section */}
       <section className="features-section">
-        <h2 className="features-title" style={{ color: '#3cb371', fontSize: 'clamp(1.5rem, 3vw, 2rem)', textAlign: 'center' }}>Features</h2>
+        <h2>Features</h2>
         <div className="features-grid">
           {features.map((f, i) => (
             <div className="feature-card fade-in" key={f.title} style={{ animationDelay: `${0.1 * i}s` }}>
               {f.icon}
-              <h3 style={{ color: '#3cb371', fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)' }}>{f.title}</h3>
-              <p style={{ color: '#388e3c', fontSize: 'clamp(0.9rem, 2vw, 1rem)' }}>{f.desc}</p>
+              <h3>{f.title}</h3>
+              <p>{f.desc}</p>
             </div>
           ))}
         </div>
       </section>
-      <footer className="landing-footer" style={{ background: '#e8f5e9', color: '#388e3c', borderTop: '1px solid #c8e6c9', textAlign: 'center', padding: '1rem', fontSize: 'clamp(0.9rem, 2vw, 1rem)' }}>
-        <p>© {new Date().getFullYear()} PantryPilot. Built for the GDG Hackathon.</p>
+
+      {/* Call to Action */}
+      <section className="cta-section">
+        <h2>Join the Movement</h2>
+        <p>Be part of the solution to global hunger. Start your sustainable food journey today.</p>
+        <div className="cta-buttons">
+          <a href="/inventory" className="cta-primary">
+            Start Using PantryPilot
+          </a>
+          <a href="https://sdgs.un.org/goals/goal2" target="_blank" rel="noopener noreferrer" className="cta-secondary">
+            Learn More About Zero Hunger
+          </a>
+        </div>
+      </section>
+
+      <footer className="landing-footer">
+        <p>© {new Date().getFullYear()} PantryPilot. Built for the GDG Hackathon. Supporting sustainable development.</p>
       </footer>
     </div>
   );
