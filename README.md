@@ -26,6 +26,4 @@ A comprehensive kitchen management application with AI-powered features.
 3. Set up environment variables
 4. Run the application
 
----
 
-*Pushed with some more Gemini stuff* 🚀 
